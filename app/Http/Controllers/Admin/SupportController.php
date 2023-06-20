@@ -2,24 +2,30 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTO\CreateSupportDTO;
+use App\DTO\UpdateSupportDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateSupportRequest;
 use App\Models\Support;
+use App\Services\SupportService;
 use Illuminate\Http\Request;
 
 class SupportController extends Controller
 {
 
     public function __construct(
-        private readonly Support $support
+        private readonly Support $support,
+        protected readonly SupportService $service,
+        protected readonly CreateSupportDTO $dtoCreate,
+        protected readonly UpdateSupportDTO $dtoUpdate
     ) {
     }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $supports = $this->support->all();
+        $supports = $this->service->getAll($request->filter);
         return view('admin.supports.index', compact('supports'));
     }
 
@@ -36,9 +42,7 @@ class SupportController extends Controller
      */
     public function store(StoreUpdateSupportRequest $request)
     {
-        $data = $request->all();
-        $data['status'] = 'a';
-        $this->support->create($data);
+        $this->service->new($this->dtoCreate->makeFromRequest($request));
         return redirect()->route('supports.index');
     }
 
@@ -47,10 +51,9 @@ class SupportController extends Controller
      */
     public function show(string | int $id)
     {
-        if (!$support = $this->support->find($id)) {
+        if (!$support = $this->service->findOne($id)) {
             return back();
         }
-        $support = $this->support->find($id);
         return view('admin.supports.show', compact('support'));
     }
 
@@ -59,10 +62,9 @@ class SupportController extends Controller
      */
     public function edit(string | int $id)
     {
-        if (!$support = $this->support->find($id)) {
+        if (!$support = $this->service->findOne($id)) {
             return back();
         }
-        $support = $this->support->find($id);
         return view('admin.supports.edit', compact('support'));
     }
 
@@ -71,11 +73,9 @@ class SupportController extends Controller
      */
     public function update(StoreUpdateSupportRequest $request, string | int $id)
     {
-        if (!$this->support->find($id)) {
-            return back();
-        }
-        $data = $request->all();
-         $this->support->find($id)->update($data);
+        $support = $this->service->update($this->dtoUpdate->makeFromRequest($request));
+        if(!$support) return back();
+                
         return redirect()->route('supports.index');
     }
 
@@ -84,10 +84,7 @@ class SupportController extends Controller
      */
     public function destroy(string | int $id)
     {
-        if (!$this->support->find($id)) {
-            return back();
-        }
-        $this->support->find($id)->delete();
+        $this->service->delete($id);
         return redirect()->route('supports.index');
     }
 }
