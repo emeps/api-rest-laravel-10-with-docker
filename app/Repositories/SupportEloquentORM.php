@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Repositories;
+
 use App\DTO\CreateSupportDTO;
 use App\DTO\UpdateSupportDTO;
 use App\Models\Support;
@@ -9,7 +11,7 @@ use stdClass;
 class SupportEloquentORM implements SupportRepositoryInterface
 {
     public function __construct(
-        protected readonly Support $model
+        protected Support $model
     ) {
     }
 
@@ -22,33 +24,44 @@ class SupportEloquentORM implements SupportRepositoryInterface
                     $query->orWhere('content', 'like', "%{$filter}%");
                 }
             })
-            ->all()
+            ->get()
             ->toArray();
     }
-    public function findOne(string | int $id): stdClass|null
+
+    public function findOne(string $id): stdClass|null
     {
-        $support = (object)$this->model->find($id)->toArray();
+        $support = $this->model->find($id);
         if (!$support) {
             return null;
         }
-        return (object)$support->toArray();
+
+        return (object) $support->toArray();
     }
+
+    public function delete(string $id): void
+    {
+        $this->model->findOrFail($id)->delete();
+    }
+
     public function new(CreateSupportDTO $dto): stdClass
     {
-        $support= $this->model->create((array)$dto);
-        return (object)$support->toArray();
+        $support = $this->model->create(
+            (array) $dto
+        );
+
+        return (object) $support->toArray();
     }
+
     public function update(UpdateSupportDTO $dto): stdClass|null
     {
-        $support = $this->model->find($dto->id);
-        if (!$support) {
+        if (!$support = $this->model->find($dto->id)) {
             return null;
         }
-        $support->update((array)$dto);
-        return (object)$support->toArray();
-    }
-    public function delete(string | int $id): void
-    {
-        $this->model->findOrfail($id)->delete();
+
+        $support->update(
+            (array) $dto
+        );
+
+        return (object) $support->toArray();
     }
 }

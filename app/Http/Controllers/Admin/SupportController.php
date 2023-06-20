@@ -6,7 +6,6 @@ use App\DTO\CreateSupportDTO;
 use App\DTO\UpdateSupportDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateSupportRequest;
-use App\Models\Support;
 use App\Services\SupportService;
 use Illuminate\Http\Request;
 
@@ -14,10 +13,7 @@ class SupportController extends Controller
 {
 
     public function __construct(
-        private readonly Support $support,
-        protected readonly SupportService $service,
-        protected readonly CreateSupportDTO $dtoCreate,
-        protected readonly UpdateSupportDTO $dtoUpdate
+        protected  SupportService $service,
     ) {
     }
     /**
@@ -42,14 +38,15 @@ class SupportController extends Controller
      */
     public function store(StoreUpdateSupportRequest $request)
     {
-        $this->service->new($this->dtoCreate->makeFromRequest($request));
+       
+        $this->service->new(CreateSupportDTO::makeFromRequest($request));
         return redirect()->route('supports.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string | int $id)
+    public function show(string $id)
     {
         if (!$support = $this->service->findOne($id)) {
             return back();
@@ -60,7 +57,7 @@ class SupportController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string | int $id)
+    public function edit(string $id)
     {
         if (!$support = $this->service->findOne($id)) {
             return back();
@@ -73,16 +70,18 @@ class SupportController extends Controller
      */
     public function update(StoreUpdateSupportRequest $request, string | int $id)
     {
-        $support = $this->service->update($this->dtoUpdate->makeFromRequest($request));
-        if(!$support) return back();
-                
+        $support = $this->service->update(
+            UpdateSupportDTO::makeFromRequest($request),
+        );
+        if (!$support) return back();
+
         return redirect()->route('supports.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string | int $id)
+    public function destroy(string $id)
     {
         $this->service->delete($id);
         return redirect()->route('supports.index');
