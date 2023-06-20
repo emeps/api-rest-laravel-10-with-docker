@@ -6,6 +6,7 @@ use App\DTO\CreateSupportDTO;
 use App\DTO\UpdateSupportDTO;
 use App\Models\Support;
 use App\Repositories\SupportRepositoryInterface;
+use App\Repositories\PaginationPresenter;
 use stdClass;
 
 class SupportEloquentORM implements SupportRepositoryInterface
@@ -65,7 +66,8 @@ class SupportEloquentORM implements SupportRepositoryInterface
         return (object) $support->toArray();
     }
 
-    public function paginate(string $filter = null,int $page =1, int $perPage = 15): PaginationInterface{
+    public function paginate(string $filter = null, int $page = 1, int $perPage = 15): PaginationInterface
+    {
         $result =  $this->model
             ->where(function ($query) use ($filter) {
                 if ($filter) {
@@ -73,9 +75,7 @@ class SupportEloquentORM implements SupportRepositoryInterface
                     $query->orWhere('content', 'like', "%{$filter}%");
                 }
             })
-            ->paginate($perPage, ['*'], 'page', $page)
-            ->toArray();
-
-        dd($result);
+            ->paginate($perPage, ['*'], 'page', $page);
+        return new PaginatePresenter($result);
     }
 }
