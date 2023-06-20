@@ -10,7 +10,7 @@ class UpdateSupportDTO
         public string $id,
         public string $subject,
         public string $status,
-        public string $body,
+        public string $content,
     ) {}
 
     public static function makeFromRequest(StoreUpdateSupportRequest $request, string $id = null): self
@@ -19,7 +19,7 @@ class UpdateSupportDTO
             $id ?? $request->id,
             $request->subject,
             'a',
-            $request->body
+            $request->content
         );
     }
 }
