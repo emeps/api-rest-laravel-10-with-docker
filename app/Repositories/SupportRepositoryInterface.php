@@ -14,4 +14,6 @@ interface SupportRepositoryInterface
     public function delete(string $id): void;
     public function new(CreateSupportDTO $dto): stdClass;
     public function update(UpdateSupportDTO $dto): stdClass|null;
+
+    public function paginate(string $filter = null,int $page =1, int $perPage = 15): PaginationInterface;
 }
