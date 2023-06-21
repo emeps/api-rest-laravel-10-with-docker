@@ -26,7 +26,9 @@ class SupportController extends Controller
             perPage: $request->get('perPage', 15),
             filter: $request->filter
         );
-        return view('admin.supports.index', compact('supports'));
+
+        $filters = ['filter'=> $request->get('filter','')];
+        return view('admin.supports.index', compact('supports', 'filters'));
     }
 
     /**
