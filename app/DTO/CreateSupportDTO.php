@@ -15,7 +15,7 @@ class CreateSupportDTO
     {
         return new self(
             $request->subject,
-            'a',
+            'Open',
             $request->content
         );
     }
